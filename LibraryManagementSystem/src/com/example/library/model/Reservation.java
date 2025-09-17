@@ -2,25 +2,28 @@ package com.example.library.model;
 
 import com.example.library.patterns.observer.Observer;
 
+import java.time.LocalDateTime;
+
 public class Reservation implements Observer {
-	private final Book book;
-	private final Patron patron;
+    private final Book book;
+    private final Patron patron;
+    private final LocalDateTime reservedAt;
+    private boolean fulfilled = false;
 
-	public Reservation(Book b, Patron p) {
-		this.book = b;
-		this.patron = p;
-	}
+    public Reservation(Book book, Patron patron) {
+        this.book = book;
+        this.patron = patron;
+        this.reservedAt = LocalDateTime.now();
+    }
 
-	public Book getBook() {
-		return book;
-	}
+    public Book getBook() { return book; }
+    public Patron getPatron() { return patron; }
+    public LocalDateTime getReservedAt() { return reservedAt; }
+    public boolean isFulfilled() { return fulfilled; }
+    public void setFulfilled(boolean fulfilled) { this.fulfilled = fulfilled; }
 
-	public Patron getPatron() {
-		return patron;
-	}
-
-	@Override
-	public void update(String msg) {
-		System.out.println("[Notification] To:" + patron.getEmail() + " - " + msg);
-	}
+    @Override
+    public void update(String message) {
+        System.out.println("[Notification] To: " + patron.getEmail() + " - " + message);
+    }
 }

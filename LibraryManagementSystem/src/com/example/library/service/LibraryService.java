@@ -1,56 +1,51 @@
 package com.example.library.service;
 
-import com.example.library.model.*;
+import com.example.library.model.Book;
+import com.example.library.model.Patron;
 import com.example.library.patterns.factory.EntityFactory;
 import com.example.library.patterns.strategy.SimpleRecommendationStrategy;
-import com.example.library.repository.*;
-import java.util.*;
+import com.example.library.repository.BookRepository;
+import com.example.library.repository.InMemoryBookRepository;
+import com.example.library.repository.InMemoryPatronRepository;
+import com.example.library.repository.PatronRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 public class LibraryService {
-	private final BookRepository bookRepo;
-	private final PatronRepository patronRepo;
-	private final InventoryService inv;
+    private final BookRepository bookRepo;
+    private final PatronRepository patronRepo;
+    private final InventoryService inventoryService;
 
-	private LibraryService() {
-		this.bookRepo = new InMemoryBookRepository();
-		this.patronRepo = new InMemoryPatronRepository();
-		this.inv = new InventoryService(bookRepo, patronRepo);
-		this.inv.setRecommendationStrategy(new SimpleRecommendationStrategy());
-	}
+    public LibraryService(BookRepository bookRepo, PatronRepository patronRepo) {
+        this.bookRepo = bookRepo;
+        this.patronRepo = patronRepo;
+        this.inventoryService = new InventoryService(bookRepo, patronRepo);
+        this.inventoryService.setRecommendationStrategy(new SimpleRecommendationStrategy());
+    }
 
-	private static class Holder {
-		private static final LibraryService INST = new LibraryService();
-	}
+    // Factory-backed convenience methods
+    public void addBook(String isbn, String title, String author, int year) {
+        Book b = EntityFactory.createBook(isbn, title, author, year);
+        bookRepo.add(b);
+    }
 
-	public static LibraryService getInstance() {
-		return Holder.INST;
-	}
+    public void addPatron(String id, String name, String email) {
+        Patron p = EntityFactory.createPatron(id, name, email);
+        patronRepo.add(p);
+    }
 
-	public void addBook(String i, String t, String a, int y) {
-		bookRepo.addBook(EntityFactory.createBook(i, t, a, y));
-	}
+    public List<Book> searchByTitle(String title) { return bookRepo.findByTitle(title); }
+    public List<Book> searchByAuthor(String author) { return bookRepo.findByAuthor(author); }
 
-	public void addPatron(String id, String n, String e) {
-		patronRepo.addPatron(EntityFactory.createPatron(id, n, e));
-	}
+    // NEW: search by ISBN
+    public Optional<Book> findByIsbn(String isbn) { return bookRepo.findByIsbn(isbn); }
 
-	public boolean checkout(String isbn, String pid, int d) {
-		return inv.checkout(isbn, pid, d);
-	}
+    public List<Book> availableBooks() { return inventoryService.availableBooks(); }
 
-	public boolean returnBook(String isbn) {
-		return inv.returnBook(isbn);
-	}
-
-	public void reserve(String isbn, String pid) {
-		inv.reserve(isbn, pid);
-	}
-
-	public List<Book> recommend(String pid, int lim) {
-		return inv.recommendFor(pid, lim);
-	}
-
-	public List<Book> searchByTitle(String t) {
-		return bookRepo.findByTitle(t);
-	}
+    // Lending operations
+    public boolean checkout(String isbn, String patronId, int days) { return inventoryService.checkout(isbn, patronId, days); }
+    public boolean returnBook(String isbn) { return inventoryService.returnBook(isbn); }
+    public void reserve(String isbn, String patronId) { inventoryService.reserve(isbn, patronId); }
+    public List<Book> recommend(String patronId, int limit) { return inventoryService.recommendFor(patronId, limit); }
 }

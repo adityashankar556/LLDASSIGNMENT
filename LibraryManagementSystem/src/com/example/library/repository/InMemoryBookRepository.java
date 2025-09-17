@@ -1,38 +1,51 @@
 package com.example.library.repository;
 
 import com.example.library.model.Book;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 public class InMemoryBookRepository implements BookRepository {
-	private final Map<String, Book> storage = new ConcurrentHashMap<>();
+    private final Map<String, Book> storage = new ConcurrentHashMap<>();
+    private final Logger logger = Logger.getLogger(InMemoryBookRepository.class.getName());
 
-	public void addBook(Book b) {
-		storage.put(b.getIsbn(), b);
-	}
+    @Override
+    public void add(Book book) {
+        storage.put(book.getIsbn(), book);
+        logger.info("Book added: " + book);
+    }
 
-	public void removeBook(String isbn) {
-		storage.remove(isbn);
-	}
+    @Override
+    public void remove(String isbn) {
+        Book removed = storage.remove(isbn);
+        logger.info("Book removed: " + removed);
+    }
 
-	public void updateBook(Book b) {
-		storage.put(b.getIsbn(), b);
-	}
+    @Override
+    public void update(Book book) {
+        storage.put(book.getIsbn(), book);
+        logger.info("Book updated: " + book);
+    }
 
-	public Optional<Book> findByIsbn(String isbn) {
-		return Optional.ofNullable(storage.get(isbn));
-	}
+    @Override
+    public Optional<Book> findByIsbn(String isbn) { return Optional.ofNullable(storage.get(isbn)); }
 
-	public List<Book> findByTitle(String t) {
-		return storage.values().stream().filter(b -> b.getTitle().contains(t)).collect(Collectors.toList());
-	}
+    @Override
+    public List<Book> findByTitle(String title) {
+        return storage.values().stream()
+                .filter(b -> b.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .collect(Collectors.toList());
+    }
 
-	public List<Book> findByAuthor(String a) {
-		return storage.values().stream().filter(b -> b.getAuthor().contains(a)).collect(Collectors.toList());
-	}
+    @Override
+    public List<Book> findByAuthor(String author) {
+        return storage.values().stream()
+                .filter(b -> b.getAuthor().toLowerCase().contains(author.toLowerCase()))
+                .collect(Collectors.toList());
+    }
 
-	public List<Book> findAll() {
-		return new ArrayList<>(storage.values());
-	}
+    @Override
+    public List<Book> findAll() { return new ArrayList<>(storage.values()); }
 }

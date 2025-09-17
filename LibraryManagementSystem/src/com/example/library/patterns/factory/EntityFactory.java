@@ -1,13 +1,14 @@
 package com.example.library.patterns.factory;
 
-import com.example.library.model.*;
+import com.example.library.model.Book;
+import com.example.library.model.Patron;
 
 public class EntityFactory {
-	public static Book createBook(String isbn, String t, String a, int y) {
-		return new Book(isbn, t, a, y);
-	}
+    public static Book createBook(String isbn, String title, String author, int year) {
+        return new Book(isbn, title, author, year);
+    }
 
-	public static Patron createPatron(String id, String n, String e) {
-		return new Patron(id, n, e);
-	}
+    public static Patron createPatron(String id, String name, String email) {
+        return new Patron(id, name, email);
+    }
 }
