@@ -6,5 +6,5 @@ import com.example.library.model.Patron;
 import java.util.List;
 
 public interface RecommendationStrategy {
-    List<Book> recommend(Patron patron, List<Book> availableBooks);
+	List<Book> recommend(Patron patron, List<Book> availableBooks);
 }
